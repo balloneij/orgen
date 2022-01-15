@@ -38,4 +38,6 @@
      (let [result (read reader amount)]
        (.reset reader)
        result)
-     "")))
+     (do
+       (.reset reader)
+       ""))))
