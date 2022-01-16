@@ -44,3 +44,30 @@
   (testing "nth past reader"
     (let [reader (r/reader "oranges")]
       (is (= "" (r/nth reader 500))))))
+
+(deftest read-line-test
+  (testing "read line to newline"
+    (let [reader (r/reader "oranges\n")]
+      (is (= "oranges" (r/read-line reader)))))
+
+  (testing "read line to newline"
+    (let [reader (r/reader "oranges\n")]
+      (is (= "oranges" (r/read-line reader)))))
+
+  (testing "read line to carriage return"
+    (let [reader (r/reader "oranges\r")]
+      (is (= "oranges" (r/read-line reader)))))
+
+  (testing "read line to carriage return new line"
+    (let [reader (r/reader "oranges\r\n")]
+      (is (= "oranges" (r/read-line reader)))))
+
+  (testing "read line to end of stream"
+    (let [reader (r/reader "oranges")]
+      (is (= "oranges" (r/read-line reader)))))
+
+  (testing "read multiple lines"
+    (let [reader (r/reader "oranges\napples\ncherries")]
+      (is (= "oranges" (r/read-line reader)))
+      (is (= "apples" (r/read-line reader)))
+      (is (= "cherries" (r/read-line reader))))))

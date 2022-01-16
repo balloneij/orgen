@@ -2,6 +2,9 @@
   (:require [clojure.java.io :as io])
   (:import [java.io StringWriter StringReader]))
 
+(def newline-c 10)
+(def carriage-return-c 13)
+
 (derive java.io.File ::file)
 (derive java.lang.String ::string)
 
@@ -15,6 +18,9 @@
 
 (defmethod reader ::string [input-str]
   (StringReader. input-str))
+
+(defn mark [reader]
+  (.mark reader 100))
 
 (defn read
   ([reader] (read reader 1))
@@ -30,6 +36,21 @@
                (recur (dec amount)))
              (recur 0))))))))
 
+(defn skip
+  ([reader] (skip reader 1))
+  ([reader amount]
+   (.skip reader amount)))
+
+(defn skip-whitespace [reader]
+  (mark reader)
+  (loop [c (.read reader)]
+    (case (char c)
+      \space (do (mark reader) (recur (.read reader)))
+      \tab (do (mark reader) (recur (.read reader)))
+      \newline (do (mark reader) (recur (.read reader)))
+      \return (do (mark reader) (recur (.read reader)))
+      (.reset reader))))
+
 (defn nth
   ([reader index] (nth reader index 1))
   ([reader index amount]
@@ -41,3 +62,23 @@
      (do
        (.reset reader)
        ""))))
+
+(defn read-line [reader]
+  (let [sw (StringWriter.)]
+    (loop [c (.read reader)]
+      (cond
+        (= c -1) (.toString sw)
+        (= c newline-c) (.toString sw)
+        (and
+         (= c carriage-return-c)
+         (= (nth reader 0) newline)) (do (read reader) (.toString sw))
+        (= c carriage-return-c) (.toString sw)
+        :else (do
+                (.write sw c)
+                (recur (.read reader)))))))
+
+(defn end-of-stream? [reader]
+  (.mark reader 1)
+  (let [end-of-stream? (= (.read reader) -1)]
+    (.reset reader)
+    end-of-stream?))
