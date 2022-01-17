@@ -9,7 +9,7 @@
       level)))
 
 (defn parse-line [reader]
-  (r/read-line reader))
+  [:text (r/read-line reader)])
 
 (defn parse-heading [reader]
   (let [level (heading-level reader)]
