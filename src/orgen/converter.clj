@@ -40,6 +40,17 @@
         :ignore-tag))
     nil))
 
+(defn text->text
+  "Org text -> HTML text"
+  [node]
+  (str/join " " (node-value node)))
+
+(defn text->? [parent i node]
+  (if (tag= node :text)
+    (cond
+      (tag= parent :heading) (text->text node)
+      :else (text->paragraph parent i node))))
+
 (defn heading->hx [node]
   (if (tag= node :heading)
     (let [{:keys [level]} (node-attrs node)]
@@ -49,7 +60,7 @@
 (defn pass-1 [node]
   (if (and (sequential? node) (not (map-entry? node)))
     (reduce-kv (fn [m i v]
-                 (let [result (or (text->paragraph node i v)
+                 (let [result (or (text->? node i v)
                                   (heading->hx v)
                                   v)]
                    (if (= result :ignore-tag)
