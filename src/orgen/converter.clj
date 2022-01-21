@@ -54,7 +54,7 @@
 (defn heading->hx [node]
   (if (tag= node :heading)
     (let [{:keys [level]} (node-attrs node)]
-      (vec (concat [(keyword (str "h" level))] (node-value node))))
+      (apply conj [(keyword (str "h" level))] (node-value node)))
     nil))
 
 (defn pass-1 [node]
@@ -70,5 +70,9 @@
                node)
     node))
 
+(defn document->html+body [document]
+  [:html
+   (apply conj [:body] (node-value document))])
+
 (defn converter [document]
-  (postwalk pass-1 document))
+  (document->html+body (postwalk pass-1 document)))
