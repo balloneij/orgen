@@ -20,9 +20,19 @@
         [:heading {:level level} (parse-line reader)])
       nil)))
 
+(defn parse-attributes [reader]
+  (let [text (r/nth-start reader 0 2)]
+    ;; TODO Use regex
+    (if (and (= text "#+") (not (str/blank? (r/nth-start reader 2))))
+      (do
+        (r/read-line reader)
+        nil)
+      nil)))
+
 (defn parse-next [reader]
   (or
    (parse-heading reader)
+   (parse-attributes reader)
    (parse-line reader)))
 
 (defn parse [reader]
