@@ -57,7 +57,11 @@
       (apply conj [(keyword (str "h" level))] (node-value node)))
     nil))
 
-(defn pass-1 [node]
+(defn document->html+body [document]
+  [:html
+   (apply conj [:body] (node-value document))])
+
+(defn- -org->html [node]
   (if (and (sequential? node) (not (map-entry? node)))
     (reduce-kv (fn [m i v]
                  (let [result (or (text->? node i v)
@@ -70,9 +74,13 @@
                node)
     node))
 
-(defn document->html+body [document]
-  [:html
-   (apply conj [:body] (node-value document))])
+(defn org->html [document]
+  (document->html+body (postwalk -org->html document)))
+
+(defn html->better-html [document]
+  document)
 
 (defn converter [document]
-  (document->html+body (postwalk pass-1 document)))
+  (-> document
+      (org->html)
+      (html->better-html)))
