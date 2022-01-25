@@ -77,8 +77,27 @@
 (defn org->html [document]
   (document->html+body (postwalk -org->html document)))
 
+(defn remove-empty-p [node]
+  (if (and (tag= node :p) (empty? (str/join "" (node-value node))))
+    (do
+      (println "we gottem" node)
+      :ignore-tag)
+    node))
+
+(defn- -html->better-html [node]
+  (if (and (sequential? node) (not (map-entry? node)))
+    (reduce-kv (fn [m i v]
+                 (let [result (or (remove-empty-p v)
+                                  v)]
+                   (if (= result :ignore-tag)
+                     m
+                     (conj m result))))
+               []
+               node)
+    node))
+
 (defn html->better-html [document]
-  document)
+  (postwalk -html->better-html document))
 
 (defn converter [document]
   (-> document
