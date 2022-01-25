@@ -78,10 +78,12 @@
   (document->html+body (postwalk -org->html document)))
 
 (defn remove-empty-p [node]
-  (if (and (tag= node :p) (empty? (str/join "" (node-value node))))
-    (do
-      (println "we gottem" node)
-      :ignore-tag)
+  (if (tag= node :p)
+    (let [v (node-value node)]
+      (if (and (= 1 (count v))
+               (str/blank? (first v)))
+        :ignore-tag
+        node))
     node))
 
 (defn- -html->better-html [node]
