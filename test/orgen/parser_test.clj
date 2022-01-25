@@ -17,3 +17,9 @@
     (let [reader (r/reader "** My heading")]
       (is (= [:heading {:level 2} "My heading"]
              (sut/parse-heading reader))))))
+
+(deftest parse-line-test
+  (testing "parse line remove extra whitespace"
+    (let [reader (r/reader " leading and trailing whitespace ")]
+      (is (= [:text "leading and trailing whitespace"]
+             (sut/parse-line reader))))))
