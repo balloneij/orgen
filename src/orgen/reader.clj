@@ -51,6 +51,15 @@
       \return (do (mark reader) (recur (.read reader)))
       (.reset reader))))
 
+(defn end-of-line? [reader]
+  (mark reader)
+  (let [c1 (char (.read reader))
+        c2 (char (.read reader))
+        eol? (or (= c1 \newline)
+                 (and (= c1 \return) (= c2 \newline)))]
+    (.reset reader)
+    eol?))
+
 (defn nth
   ([reader index] (nth reader index 1))
   ([reader index amount]
